@@ -82,12 +82,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
       "Disable default comma stock disengage on gas feature",
       "../assets/offroad/icon_car_pedal.png",
      },
-    {
-      "EnableAutoResume",
-      "Enable auto resume",
-      "Disable default GM stock disable auto resume from full stop",
-      "../assets/offroad/icon_auto_resume.png",
-     },
+
 #ifdef ENABLE_MAPS
     {
       "NavSettingTime24h",

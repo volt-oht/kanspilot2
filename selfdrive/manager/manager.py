@@ -48,7 +48,7 @@ def manager_init() -> None:
     ("DisableOpFcw", "1"),
     ("DisableUpdates", "1"),
     ("DisableDisengageOnGas", "0"),
-    ("EnableAutoResume", "0"),
+    # ("EnableAutoResume", "0"),
     ("ShowDebugUI", "0"),
     #OPKR
     ("OpkrBatteryChargingControl", "0"),

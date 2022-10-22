@@ -5,7 +5,6 @@ from common.numpy_fast import interp, clip
 from opendbc.can.packer import CANPacker
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.gm import gmcan
-from selfdrive.car.gm.gmcan import create_resume_button_command
 from selfdrive.car import create_gas_interceptor_command
 from selfdrive.car.gm.values import DBC, AccState, CanBus, CarControllerParams, CruiseButtons
 import cereal.messaging as messaging
@@ -27,7 +26,6 @@ class CarController:
     # resume
     self.params = CarControllerParams()
     self.disengage_on_gas = not Params().get_bool("DisableDisengageOnGas")
-    self.auto_resume = Params().get_bool("EnableAutoResume")
     self.button = CruiseButtons.UNPRESS
 
     self.packer = CANPacker(dbc_name)
@@ -112,23 +110,7 @@ class CarController:
         can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, CanBus.CHASSIS, self.apply_brake, idx, near_stop, at_full_stop))
         CS.autoHoldActivated = False
 
-        # Auto-resume from full stop by resetting ACC control
         CC.enabled = enabled
-        self.sm.update(0)
-        if self.sm.updated['radarState']:
-          d = 0
-          lead = self.sm['radarState'].leadOne
-          if lead is not None:
-            d = lead.dRel
-          if standstill and not car_stopping and CS.CP.autoResume:
-          #if standstill and not car_stopping and CS.CP.autoResume and CS.out.brakePressed and CS.CP.openpilotLongitudinalControl and CS.out.vEgo < 0.03:
-            if d > 0.05:
-              CC.enabled = False
-              CS.resume_button_pressed = True
-            elif CS.out.vEgo < 1.5:
-              CS.resume_required = False
-            #can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, CC.enabled, \
-            #   hud_v_cruise * CV.MS_TO_KPH, hud_control.leadVisible, send_fcw, follow_level, CS.resume_button_pressed))
 
         can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, self.apply_gas, idx, CC.enabled, at_full_stop))
 
@@ -138,7 +120,6 @@ class CarController:
       follow_level = CS.get_follow_level()
       can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, CC.enabled, \
                      hud_v_cruise * CV.MS_TO_KPH, hud_control.leadVisible, send_fcw, follow_level, CS.resume_button_pressed))
-      CS.resume_button_pressed = False
 
     # Radar needs to know current speed and yaw rate (50hz),
     # and that ADAS is alive (10hz)
