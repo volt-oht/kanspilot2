@@ -122,12 +122,11 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     pauseLongOnGasPress @113;
     stoppedWaitForGas @114;
     buttonMainCancel @115;
-    signalLost @118;
-    signalRestored @119;
-
+    signalLost @116;
+    signalRestored @117;
     #Road speed Limiter
-    slowingDownSpeed @116;
-    slowingDownSpeedSound @117;
+    slowingDownSpeed @118;
+    slowingDownSpeedSound @119;
 
     driverMonitorLowAccDEPRECATED @68;
     radarCanErrorDEPRECATED @15;
@@ -192,6 +191,15 @@ struct CarState {
   drivePower @60 :Float32;
   icePower @61 :Float32;
   observedEVDrivetrainEfficiency @62 :Float32;
+  regenForce @63 :Float32;
+  regenPower @64 :Float32;
+  brakeForce @65 :Float32;
+  brakePower @66 :Float32;
+  evForce @67 :Float32;
+  evPower @68 :Float32;
+  rollingForce @69 :Float32;
+  rollingPower @70 :Float32;
+  pitchPower @71 :Float32;
 
   lateralAcceleration @54 :Float32;
   yawRate2 @55 :Float32;
@@ -262,7 +270,6 @@ struct CarState {
     standstill @4 :Bool;
     nonAdaptive @5 :Bool;
     speedLimit @6 :Float32;
-    resumeButton @7 :Bool;
   }
 
   enum GearShifter {
@@ -357,8 +364,11 @@ struct CarControl {
   onePedalI @13 :Float32;
   onePedalD @14 :Float32;
   onePedalF @15 :Float32;
+  onePedalLeadStopDistance @16 :Float32;
+  onePedalStopDistance @17 :Float32;
+  onePedalStopAccel @18 :Float32;
 
-  sccSmoother @16 :SccSmoother;
+  sccSmoother @19 :SccSmoother;
 
   struct SccSmoother {
     roadLimitSpeedActive @0 :Int32;

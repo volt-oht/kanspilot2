@@ -422,36 +422,6 @@ class Controls:
 
     return CS
 
-# bellows are for Slow on Curve by Neokii
-  def cal_curve_speed(self, sm, v_ego, frame):
-
-    if frame % 20 == 0:
-      md = sm['modelV2']
-      if md is not None and len(md.position.x) == TRAJECTORY_SIZE and len(md.position.y) == TRAJECTORY_SIZE:
-        x = md.position.x
-        y = md.position.y
-        dy = np.gradient(y, x)
-        d2y = np.gradient(dy, x)
-        curv = d2y / (1 + dy ** 2) ** 1.5
-
-        start = int(interp(v_ego, [12.5, 35.], [5, TRAJECTORY_SIZE-10]))
-        curv = curv[start:min(start + 10, TRAJECTORY_SIZE)]
-        a_y_max = 2.975 - v_ego * 0.0375  # ~1.85 @ 75mph, ~2.6 @ 25mph
-        v_curvature = np.sqrt(a_y_max / np.clip(np.abs(curv), 1e-4, None))
-        model_speed = np.mean(v_curvature) * 0.75
-
-        if model_speed < v_ego:
-          self.curve_speed_ms = float(max(model_speed, MIN_CURVE_SPEED))
-        else:
-          self.curve_speed_ms = 255.
-
-        if np.isnan(self.curve_speed_ms):
-          self.curve_speed_ms = 255.
-      else:
-        self.curve_speed_ms = 255.
-
-    return self.curve_speed_ms
-
   def state_transition(self, CS):
     """Compute conditional state transitions and execute actions on state transitions"""
 
@@ -537,9 +507,6 @@ class Controls:
     else:
       self.v_cruise_kph_limit = self.v_cruise_kph
 
-# 2 lines for Slow on Curve
-    curv_speed_ms = self.cal_curve_speed(self.sm, CS.vEgo, self.sm.frame)
-    self.v_cruise_kph_limit = min(self.v_cruise_kph_limit, curv_speed_ms * CV.MS_TO_KPH)
 
     # decrease the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
@@ -746,7 +713,10 @@ class Controls:
     CC.onePedalI = float(self.CI.CC.one_pedal_pid.i)
     CC.onePedalD = float(self.CI.CC.one_pedal_pid.d)
     CC.onePedalF = float(self.CI.CC.one_pedal_pid.f)
-
+    CC.onePedalLeadStopDistance = float(self.CI.CC.lead_stop_distance)
+    CC.onePedalStopDistance = float(self.CI.CC.stop_distance)
+    CC.onePedalStopAccel = float(self.CI.CC.stop_accel.x)
+    
     CC.hudControl.setSpeed = float(self.v_cruise_kph_limit * CV.KPH_TO_MS)
     CC.hudControl.speedVisible = self.enabled
     CC.hudControl.lanesVisible = self.enabled

@@ -113,7 +113,7 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                   "../assets/offroad/icon_speed_limit_sign.png",
                                   this));
   toggles.append(new ParamControl("EUSpeedLimitStyle",
-                                  "Show EU style speed limit sign",
+                                  "유럽형 속도제한 표시기",
                                   "If enabled, show EU style circular sign. If disabled, show US/Canada style rectangular sign.",
                                   "../assets/offroad/icon_speed_limit_sign.png",
                                   this));
@@ -153,12 +153,12 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                   "../assets/offroad/icon_rocket.png",
                                   this));
   toggles.append(new ParamControl("DynamicFollowToggle",
-                                  "Dynamic follow",
+                                  "동적 추종",
                                   "속도와 트래픽에 따른 근접/중간/원거리 추종 프로파일",
                                   "../assets/offroad/icon_road.png",
                                   this));
   toggles.append(new ParamControl("NudgelessLaneChange",
-                                  "Nudgeless lane change (1s delay) ⚠️",
+                                  "넛지리스 차선변경 (1s delay) ⚠️",
                                   "Perform lane change without requiring nudge from driver",
                                   "../assets/offroad/icon_hands_on_wheel.png",
                                   this));
@@ -188,23 +188,28 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                   "../assets/img_brake.png",
                                   this));
   toggles.append(new ParamControl("OnePedalMode",
-                                  "[GM] One-pedal mode (tap me)",
+                                  "[GM]용 원페달 (tap me)",
                                   "\"Disable disengage on gas\"옵션과 연동됨. OP가 커브길과 앞차량 추종시 조향과 브레이크를 계속하는 동안 -조정가능한 제동옵션이 포함된- 가속페달을 사용하여 속도를 제어할 수 있습니다. 활성화하려면 One-pedal engage on gas를 참조 일반 크루즈운행으로 돌아가려면 SET, RESUME 버튼을 누르십시오. ② 페달 아이콘을 눌러 원페달모드로 전환합니다 아래 참조 one-pedal 모드가 활성화되면 차량이 거리 표시기를 따르고 페달 아이콘 색상이 1/2/3 = (⚫️)/🟢/🟠/🔴 = (regen/engine)/light/moderate/heavy braking 제동 중임을 나타냅니다. ③ 추종거리 버튼을 눌러 light/moderate braking 사이를 전환하게 합니다; 제동 사이를 전환하고, heavy braking을 유지하십시오. ④ 페달 아이콘을 탭하거나 추종 거리 버튼을 사용하여, 마찰 브레이킹 🟢/🟠/🔴 및 리젠/엔진⚫제동 사이를 전환합니다; 한번 탭하면 마찰 제동이 활성화되고, 두번 탭하면 가속페달을 밟고 있거나, 정차중에는 마찰 마찰 제동이 비활성화됩니다.",
                                   "../assets/offroad/icon_car_pedal.png",
                                   this));
+  toggles.append(new ParamControl("OnePedalModeSimple",
+                                   "[GM] 원페달 우선 브레이크 ⚠️",
+                                   "원 페달 모드를 사용할 때는 다른 모든 형태의 오파 브레이크를 완전히 비활성화하십시오. 선두 차량 뒤에서 속도를 늦추거나 멈추거나 커브길에서 속도를 줄이려면 추가 브레이크가 자동으로 적용되지 않습니다. 추종 버튼을 사용하여 조정 가능한 원 페달 브레이크를 사용하거나 실제 브레이크를 사용하여 브레이크를 작동시키는 책임은 전적으로 귀하에게 있습니다.",
+                                   "../assets/offroad/icon_car_pedal.png",
+                                   this));
   toggles.append(new ParamControl("OnePedalDLCoasting",
-                                  "[Volt] One-pedal D/L coast",
+                                  "[Volt]용 원페달 D/L 티력주행",
                                   "VOLT차량에서 원페달모드, D에서는 엔진,마찰,회생제동 브레이크가 전혀 작동되지 않습니다. L기어에서는 회생제동이 작동됨.",
                                   "../assets/offroad/icon_gear_shifter.png",
                                   this));
   toggles.append(new ParamControl("OnePedalModeEngageOnGas",
-                                  "[GM] One-pedal engage on gas (EoG)",
+                                  "[GM]용 원페달 인게이지 On Gas(EoG)",
                                   "GM 크루즈모드에서 가속페달을 밟을 때(즉, 정지상태에서의 리쥼할 때가 아닌)는, 원페달모드로 진입됨. 정상 크루즈모드로 돌아가려면 페달을 밟거나 리셑버튼을 누름.",
                                   "../assets/offroad/icon_car_pedal.png",
                                   this));
   toggles.append(new ParamControl("OnePedalDLEngageOnGas",
-                                  "[Volt] One-pedal D/L EoG",
-                                  "VOLT차량에서 D/L 타력주행과 연동됨. 가스페달 중에도 인에이지 기능이, D에서는 꺼지고 L에서는 켜진다.",
+                                  "[Volt]용 원페달 D/L 인게이지On Gas",
+                                  "VOLT차량에서 D/L 타력주행과 연동. 가스페달 중에도 인에이지 기능이, D에서는 꺼지고 L에서는 켜짐.",
                                   "../assets/offroad/icon_gear_shifter.png",
                                   this));
   toggles.append(new ParamControl("OnePedalPauseBlinkerSteering",
@@ -213,27 +218,27 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                   "../assets/offroad/icon_hands_on_wheel.png",
                                   this));
   toggles.append(new ParamControl("BrakeIndicator",
-                                  "[GM] Brake indicator",
+                                  "[GM] 브레이크 표시",
                                   "주행중 우측 하단에 있는 브레이크 표시등. 표시기 중앙에 있는 원이 커지고 빨간색으로 바뀌어 제동 수준을 나타냅니다. 시동 걸자마자 깜박이면서 작동 중임을 알립니다.",
                                   "../assets/offroad/icon_brake_disc.png",
                                   this));
   toggles.append(new ParamControl("CustomSounds",
-                                  "Alternative sounds",
+                                  "대체 사운드",
                                   "대체 사운드 사용",
                                   "../assets/offroad/icon_custom_sounds.png",
                                   this));
   toggles.append(new ParamControl("SilentEngageDisengage",
-                                  "Silent engage/disengage",
+                                  "인/디스인게이지 사운드 묵음",
                                   "engage/disengage 사운드 묵음.",
                                   "../assets/offroad/icon_mute.png",
                                   this));
   toggles.append(new ParamControl("IgnoreMissingNVME",
-                                  "Ignore missing NVME",
-                                  "누락된 NVME 드라이브가 32GB C3에 표시되지 않도록 방지다(적용하려면 장치재시작하십시오).",
+                                  "NVME 드라이브 오류 무시",
+                                  "32G C3에 누락된 NVME 드라이브 오류표시 방지.",
                                   "../assets/offroad/icon_settings.png",
                                   this));
   toggles.append(new ParamControl("FPVolt",
-                                  "Volt Fingerprint",
+                                  "Volt 핑거프린트",
                                   "Volt 핑거 강제하기",
                                   "../assets/offroad/icon_settings.png",
                                   this));
@@ -247,9 +252,19 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                   "조향(스티어링)에 따른 경로색 바꾸기.",
                                   "../assets/offroad/icon_road.png",
                                   this));
+  toggles.append(new ParamControl("AdjacentPaths",
+                                  "다가오는/멀어지는 차선  그리기",
+                                  "인접 차선에 다가오는 차선은 빨간색, 멀어지는 차선은 녹색으로 경로를 그립니다.",
+                                  "../assets/offroad/icon_road.png",
+                                  this));
   toggles.append(new ParamControl("PrintLeadInfo",
-                                  "Print lead car info",
+                                  "리드카 정보표시",
                                   "리드카 표시기 옆에 리드차량 도달시간 및 거리, 절대 및 상대속도 표시.",
+                                  "../assets/offroad/icon_metric.png",
+                                  this));
+  toggles.append(new ParamControl("PrintAdjacentLeadSpeeds",
+                                  "모든 리드카 속도 표시",
+                                  "레이더 또는 카메라에 포착된 모든 차량의 속도표시. 속도는 화면 아래쪽을 따라 중앙에서 왼쪽/오른쪽으로 거리순으로 인쇄되므로 중앙에서 가장 가까운 숫자는 보다 가까운 차량을 위한 것입니다. 다가오는 차량은 빨간색으로, 멀어지는 차량은 녹색으로 화면에 표시됩니다.",
                                   "../assets/offroad/icon_metric.png",
                                   this));
   toggles.append(new ParamControl("ShowDebugUI",

@@ -98,7 +98,7 @@ class CarInterface(CarInterfaceBase):
   @staticmethod
   def get_steer_feedforward_volt_torque(desired_lateral_accel, v_ego):
     ANGLE_COEF = 0.08617848
-    ANGLE_COEF2 = 0.12568428
+    ANGLE_COEF2 = 0.17
     ANGLE_OFFSET = 0.00205026
     SPEED_OFFSET = -3.48009247
     SIGMOID_COEF_RIGHT = 0.56664089
@@ -179,7 +179,7 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalActuatorDelayUpperBound = 0.42
 
     # Default lateral controller params.
-    ret.minSteerSpeed = 7 * CV.MPH_TO_MS
+    ret.minSteerSpeed = 10.1 * CV.KPH_TO_MS
     ret.lateralTuning.pid.kpBP = [0.]
     ret.lateralTuning.pid.kpV = [0.2]
     ret.lateralTuning.pid.kiBP = [0.]
@@ -204,16 +204,16 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 0.469 # Stock Michelin Energy Saver A/S, LiveParameters
       ret.steerRatioRear = 0.
       ret.centerToFront = 0.45 * ret.wheelbase # from Volt Gen 1
-      ret.steerActuatorDelay = 0.18
+      ret.steerActuatorDelay = 0.22
       if (Params().get_bool("EnableTorqueControl")):
         max_lateral_accel = 3.0
         ret.lateralTuning.init('torque')
         ret.lateralTuning.torque.useSteeringAngle = True
-        ret.lateralTuning.torque.kp = 1.8 / max_lateral_accel
-        ret.lateralTuning.torque.ki = 0.45 / max_lateral_accel
-        ret.lateralTuning.torque.kd = 6.0 / max_lateral_accel
+        ret.lateralTuning.torque.kp = 0.9
+        ret.lateralTuning.torque.ki = 0.15
+        ret.lateralTuning.torque.kd = 2.2
         ret.lateralTuning.torque.kf = 1.0 # use with custom torque ff
-        ret.lateralTuning.torque.friction = 0.005
+        ret.lateralTuning.torque.friction = 0.02
       else:
         ret.lateralTuning.pid.kpBP = [0., 40.]
         ret.lateralTuning.pid.kpV = [0., .16]
@@ -228,7 +228,7 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpBP = [5., 15., 35.]
       ret.longitudinalTuning.kpV = [0.9, .9, 0.8]
       ret.longitudinalTuning.kiBP = [5., 15., 35.]
-      ret.longitudinalTuning.kiV = [0.14, 0.34, 0.31]
+      ret.longitudinalTuning.kiV = [0.14, 0.13, 0.13]
       ret.longitudinalTuning.kdBP = [5., 25.]
       ret.longitudinalTuning.kdV = [0.4, 0.0]
       ret.stoppingDecelRate = 0.2 # brake_travel/s while trying to stop
@@ -505,11 +505,11 @@ class CarInterface(CarInterfaceBase):
       if not ret.standstill and self.CS.lkMode and self.CS.lane_change_steer_factor < 1.:
         events.add(car.CarEvent.EventName.blinkerSteeringPaused)
         steer_paused = True
-    ''' if ret.vEgo < self.CP.minSteerSpeed:
+    if ret.vEgo < self.CP.minSteerSpeed:
       if ret.standstill and cruiseEnabled and not ret.brakePressed and not self.CS.pause_long_on_gas_press and not self.CS.autoHoldActivated and not self.CS.disengage_on_gas and t - self.CS.sessionInitTime > 10. and not self.CS.resume_required:
         events.add(car.CarEvent.EventName.stoppedWaitForGas)
       elif not steer_paused and self.CS.lkMode and not self.CS.resume_required:
-        events.add(car.CarEvent.EventName.belowSteerSpeed) '''
+        events.add(car.CarEvent.EventName.belowSteerSpeed)
     if self.CS.autoHoldActivated:
       self.CS.lastAutoHoldTime = t
       events.add(car.CarEvent.EventName.autoHoldActivated)
