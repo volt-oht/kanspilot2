@@ -52,9 +52,6 @@
 #define CLIP(A,L,H) A < L ? L : (A > H ? H : A)
 
 typedef cereal::CarControl::HUDControl::AudibleAlert AudibleAlert;
-typedef cereal::RadarState::LeadData::Reader LeadData;
-typedef cereal::LateralPlan::LaneTraffic LaneTraffic;
-typedef cereal::LateralPlan::LanePosition LanePosition;
 
 // TODO: this is also hardcoded in common/transformations/camera.py
 // TODO: choose based on frame input size
@@ -143,7 +140,8 @@ const QColor tcs_colors [] = {
   [int(cereal::LongitudinalPlan::VisionTurnControllerState::DISABLED)] =  QColor(0x0, 0x0, 0x0, 0xff),
   [int(cereal::LongitudinalPlan::VisionTurnControllerState::ENTERING)] = QColor(0xC9, 0x22, 0x31, 0xf1),
   [int(cereal::LongitudinalPlan::VisionTurnControllerState::TURNING)] = QColor(0xDA, 0x6F, 0x25, 0xf1),
-  [int(cereal::LongitudinalPlan::VisionTurnControllerState::LEAVING)] = QColor(0x17, 0x86, 0x44, 0xf1),
+  [int(cereal::LongitudinalPlan::VisionTurnControllerState::LEAVING)
+  ] = QColor(0x17, 0x86, 0x44, 0xf1),
 };
 
 typedef struct {
@@ -171,19 +169,9 @@ typedef enum UIMeasure { //rearrange here to adjust order when cycling measures
   DRAG_FORCE,
   DRAG_POWER,
   DRAG_POWER_HP,
-  DRAG_LOSSES,
   ACCEL_FORCE,
   ACCEL_POWER,
   ACCEL_POWER_HP,
-  EV_FORCE,
-  EV_POWER,
-  EV_POWER_HP,
-  REGEN_FORCE,
-  REGEN_POWER,
-  REGEN_POWER_HP,
-  BRAKE_FORCE,
-  BRAKE_POWER,
-  BRAKE_POWER_HP,
   DRIVE_POWER,
   DRIVE_POWER_HP,
   ICE_POWER,
@@ -257,15 +245,7 @@ typedef struct UIScene {
 
   bool lead_info_print_enabled;
   std::deque<int> lead_x_vals, lead_y_vals;
-  int lead_x, lead_y;
   int const lead_xy_num_vals = 5;
-
-  bool adjacent_paths_enabled;
-  bool adjacent_lead_info_print_enabled;
-  std::string adjacent_leads_left_str, adjacent_leads_right_str;
-  std::vector<std::string> adjacent_leads_center_strs;
-
-  LaneTraffic traffic_left, traffic_right;
 
   bool is_using_torque_control = false;
 
@@ -294,8 +274,6 @@ typedef struct UIScene {
   Rect wheel_touch_rect;
   bool wheel_rotates = true;
 
-  bool car_is_ev = false;
-
   bool color_path = false;
   
   float screen_dim_modes_v[3] = {0.01, 0.3, 1.};
@@ -311,14 +289,6 @@ typedef struct UIScene {
 
   std::string network_type_string;
   int network_strength;
-
-  std::vector<float> power_cur {0.,0.,0.,0.}, 
-      power_max {75., 100., 100.,  55.}; // [kW] starting upper limits for ICE, EV, brake, and regen power based on volt (volt has 149hp EV output, 101hp motor, a reported 55-60 kW of regen capacity. Brake is based on volt braking at 3.5m/s^2 at 45mph. these go up if more power is observed
-  float power_meter_pow = 0;
-  Rect power_meter_rect, power_meter_text_rect;
-  int power_meter_mode = 0; // 0/1/2 for meter/meter+number/old style brake indicator
-  bool power_meter_metric = true; // true/false for kW/hp power output
-  float power_meter_ema_k = 0.2;
 
   
 // measures
@@ -416,7 +386,6 @@ typedef struct UIScene {
   Rect laneless_btn_touch_rect;
 
   cereal::DeviceState::Reader deviceState;
-  cereal::RadarState::Reader radarState;
   cereal::RadarState::LeadData::Reader lead_data[2];
   cereal::CarState::Reader car_state;
   cereal::ControlsState::Reader controls_state;
@@ -435,13 +404,10 @@ typedef struct UIScene {
   line_vertices_data lane_line_vertices[4];
   line_vertices_data road_edge_vertices[2];
 
-  line_vertices_data lane_vertices_left, lane_vertices_right;
-
   bool dm_active, engageable;
 
   // lead
   vertex_data lead_vertices[2];
-  std::vector<vertex_data> lead_vertices_oncoming, lead_vertices_ongoing, lead_vertices_stopped;
 
   float light_sensor, accel_sensor, gyro_sensor;
   bool started, ignition, is_metric, longitudinal_control, end_to_end;

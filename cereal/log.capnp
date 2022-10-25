@@ -462,11 +462,7 @@ struct RadarState @0x9a185389d6fdd05f {
   radarErrors @12 :List(Car.RadarData.Error);
 
   leadOne @3 :LeadData;
-  leadOnePlus @16 :LeadData;
   leadTwo @4 :LeadData;
-  leadsLeft @13 :List(LeadData);
-  leadsCenter @14 :List(LeadData);
-  leadsRight @15 :List(LeadData);
   cumLagMs @5 :Float32;
 
   struct LeadData {
@@ -999,31 +995,6 @@ struct LateralPlan @0xe1e9318e2ae8b51e {
   shoulderMeanWidthRight @37 :Float32;
   laneProbs @39 :List(Float32);
   roadEdgeProbs @40 :List(Float32);
-
-  trafficLeft @41 :LaneTraffic;
-  trafficRight @42 :LaneTraffic;
-
-  laneChangeAlert @43 :LaneChangeAlert;
-  laneChangeCountdown @44 :Float32;
-  
-  enum LaneChangeAlert {
-    none @0;
-    nudgelessBlockedNoLane @1;
-    nudgelessBlockedOncoming @2;
-    nudgelessBlockedTimeout @3;
-    nudgelessBlockedMinSpeed @4;
-    nudgelessBlockedOnePedal @5;
-    nudgelessCountdown @6;
-    nudgeWarningNoLane @7;
-    nudgeWarningOncoming @8;
-  }
-
-  enum LaneTraffic {
-    none @0;
-    oncoming @1;
-    ongoing @2;
-    stopped @3;
-  }
 
   enum LanePosition {
     center @0;
