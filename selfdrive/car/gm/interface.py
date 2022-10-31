@@ -197,8 +197,10 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalTuning.deadzoneBP = [0., 100.*CV.KPH_TO_MS]
     ret.longitudinalTuning.deadzoneV = [0.0, .14]
 
-    ret.longitudinalTuning.kpBP = [0, 10 * CV.KPH_TO_MS, 20 * CV.KPH_TO_MS, 50 * CV.KPH_TO_MS, 70 * CV.KPH_TO_MS, 120 * CV.KPH_TO_MS]
-    ret.longitudinalTuning.kpV = [4.8, 3.5, 3.0, 1.0, 0.7, 0.5]
+    #ret.longitudinalTuning.kpBP = [0, 10 * CV.KPH_TO_MS, 20 * CV.KPH_TO_MS, 50 * CV.KPH_TO_MS, 70 * CV.KPH_TO_MS, 120 * CV.KPH_TO_MS]
+    #ret.longitudinalTuning.kpV = [4.8, 3.5, 3.0, 1.0, 0.7, 0.5]
+    ret.longitudinalTuning.kpBP = [5., 15., 35.] # twilsonco
+    ret.longitudinalTuning.kpV = [0.9, 0.9, 0.8] #twilsonco
     ret.longitudinalTuning.kiBP = [0, 20 * CV.KPH_TO_MS, 30 * CV.KPH_TO_MS, 50 * CV.KPH_TO_MS, 70 * CV.KPH_TO_MS, 120 * CV.KPH_TO_MS]
     ret.longitudinalTuning.kiV = [0.35, 0.53, 0.62, 0.7, 0.5, 0.36]
     ret.longitudinalActuatorDelayLowerBound = 0.42
