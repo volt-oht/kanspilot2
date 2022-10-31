@@ -81,10 +81,9 @@ class CarInterface(CarInterfaceBase):
     # or camera is on powertrain bus (LKA cars without ACC).
     # for white panda
     # ret.enableGasInterceptor = 0x201 in fingerprint[0]
-    ret.enableGasInterceptor = 512 in fingerprint[0] # Params().get_bool("EnableAutoResume") or (512 in fingerprint[0])
+    ret.enableGasInterceptor = 512 in fingerprint[0]
     ret.enableCamera = is_ecu_disconnected(fingerprint[0], FINGERPRINTS, ECU_FINGERPRINT, candidate, Ecu.fwdCamera)
     ret.openpilotLongitudinalControl = (Params().get_bool('LongControlEnabled') and ret.enableCamera) or ret.enableGasInterceptor
-    ret.autoResume = Params().get_bool("EnableAutoResume")
 
     tire_stiffness_factor = 0.469
     # for autohold on ui icon
