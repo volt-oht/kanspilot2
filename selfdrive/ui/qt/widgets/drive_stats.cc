@@ -57,11 +57,11 @@ DriveStats::DriveStats(QWidget* parent) : QFrame(parent) {
     TARGET_SERVER = util::getenv("API_HOST", "http://opkr.tk:3000").c_str();
   }
 
-  /*if (auto dongleId = getDongleId()) {
-    QString url = "https://api.commadotai.com/v1.1/devices/" + *dongleId + "/stats";
-    RequestRepeater* repeater = new RequestRepeater(this, url, "ApiCache_DriveStats", 30);
+  if (auto dongleId = getDongleId()) {
+    QString url = TARGET_SERVER + "/v1.1/devices/" + *dongleId + "/stats";
+    RequestRepeater* repeater = new RequestRepeater(this, url, "ApiCache_DriveStats", 3720);
     QObject::connect(repeater, &RequestRepeater::requestDone, this, &DriveStats::parseResponse);
-  }*/
+  }
 
   setStyleSheet(R"(
     DriveStats {

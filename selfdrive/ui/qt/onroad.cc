@@ -76,8 +76,6 @@ void OnroadWindow::updateState(const UIState &s) {
   if (s.sm->updated("controlsState") || !alert.equal({})) {
     if (alert.type == "controlsUnresponsive") {
       bgColor = bg_colors[STATUS_ALERT];
-    } else if (alert.type == "controlsUnresponsivePermanent") {
-      bgColor = bg_colors[STATUS_DISENGAGED];
     }
     if (!Params().getBool("IsOpenpilotViewEnabled")) {
       alerts->updateAlert(alert, bgColor);
