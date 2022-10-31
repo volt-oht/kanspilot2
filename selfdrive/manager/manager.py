@@ -181,8 +181,8 @@ def manager_thread():
 
   if EON:
     system("am startservice com.neokii.optool/.MainService")
-    #Process(name="shutdownd", target=launcher, args=("selfdrive.shutdownd",)).start()
-
+    Process(name="autoshutdownd", target=launcher, args=("selfdrive.autoshutdownd", "autoshutdownd")).start()
+  cloudlog.bind(daemon="manager")
   cloudlog.info("manager start")
   cloudlog.info({"environ": os.environ})
 
