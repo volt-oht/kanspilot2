@@ -195,6 +195,11 @@ class Controls:
     self.curve_speed_ms = 255.
     self.sccStockCamStatus = 0
     self.sccStockCamAct = 0
+
+    self.slowing_down = False
+    self.slowing_down_alert = False
+    self.slowing_down_sound_alert = False
+
     self.left_lane_visible = False
     self.right_lane_visible = False
 
@@ -236,6 +241,11 @@ class Controls:
     # controlsd is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
     self.prof = Profiler(False)  # off by default
+
+  def reset(self):
+    self.slowing_down = False
+    self.slowing_down_alert = False
+    self.slowing_down_sound_alert = False
 
   def update_events(self, CS):
     """Compute carEvents from carState"""
@@ -436,6 +446,13 @@ class Controls:
       and self.CP.openpilotLongitudinalControl and CS.vEgo < 0.3:
       self.events.add(EventName.noTarget)
 
+    # events for roadSpeedLimiter
+    if self.slowing_down_sound_alert:
+      self.slowing_down_sound_alert = False
+      self.events.add(EventName.slowingDownSpeedSound)
+    elif self.slowing_down_alert:
+      self.events.add(EventName.slowingDownSpeed)
+
   def data_sample(self):
     """Receive data from sockets and update carState"""
 
@@ -529,13 +546,24 @@ class Controls:
     apply_limit_speed, road_limit_speed, left_dist, first_started, limit_log = \
       road_speed_limiter.get_max_speed(CS, self.v_cruise_kph)
 
-    if apply_limit_speed > 20:
+    if apply_limit_speed >= 20:
       self.v_cruise_kph_limit = min(apply_limit_speed, self.v_cruise_kph)
 
-      if apply_limit_speed < CS.vEgo * CV.MS_TO_KPH:
-        self.events.add(EventName.slowingDownSpeedSound)
+      if CS.vEgo * CV.MS_TO_KPH > apply_limit_speed:
+      #  self.events.add(EventName.slowingDownSpeedSound)
+
+        if not self.slowing_down_alert and not self.slowing_down:
+          self.slowing_down_sound_alert = True
+          self.slowing_down = True
+
+        self.slowing_down_alert = True
+
+      else:
+        self.slowing_down_alert = False
 
     else:
+      self.slowing_down_alert = False
+      self.slowing_down = False
       self.v_cruise_kph_limit = self.v_cruise_kph
 # 2 lines for Slow on Curve
     curv_speed_ms = self.cal_curve_speed(self.sm, CS.vEgo, self.sm.frame)
