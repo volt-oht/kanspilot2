@@ -5,6 +5,7 @@ import signal
 import subprocess
 import sys
 import traceback
+from multiprocessing import Process
 
 import cereal.messaging as messaging
 import selfdrive.crash as crash
@@ -12,15 +13,16 @@ from common.basedir import BASEDIR
 from common.params import Params, ParamKeyType
 from common.text_window import TextWindow
 from selfdrive.boardd.set_time import set_time
-from selfdrive.hardware import HARDWARE, PC
+from selfdrive.hardware import HARDWARE, PC, EON
 from selfdrive.manager.helpers import unblock_stdout
-from selfdrive.manager.process import ensure_running
+from selfdrive.manager.process import ensure_running, launcher
 from selfdrive.manager.process_config import managed_processes
 from selfdrive.athena.registration import register, UNREGISTERED_DONGLE_ID
 from selfdrive.swaglog import cloudlog, add_file_handler
 from selfdrive.version import dirty, get_git_commit, version, origin, branch, commit, \
                               terms_version, training_version, comma_remote, \
                               get_git_branch, get_git_remote
+from selfdrive.hardware.eon.apk import system
 
 sys.path.append(os.path.join(BASEDIR, "pyextra"))
 
@@ -37,18 +39,19 @@ def manager_init():
     ("HasAcceptedTerms", "0"),
     ("HandsOnWheelMonitoring", "0"),
     ("OpenpilotEnabledToggle", "1"),
+    ("IsMetric", "1"),
     ("CommunityFeaturesToggle", "1"),
     ("ShowDebugUI", "1"),
     ("IgnoreMissingNVME", "0"),
-    ("SpeedLimitControl", "1"),
+    ("SpeedLimitControl", "0"),
     ("EUSpeedLimitStyle", "0"),
-    ("SpeedLimitPercOffset", "1"),
-    ("TurnSpeedControl", "1"),
+    ("SpeedLimitPercOffset", "0"),
+    ("TurnSpeedControl", "0"),
     ("TurnVisionControl", "1"),
     ("GMAutoHold", "1"),
-    ("CruiseSpeedOffset", "1"),
+    ("CruiseSpeedOffset", "0"),
     ("ColorPath", "0"),
-    ("AlternateColors", "1"),
+    ("AlternateColors", "0"),
     ("ReverseSpeedAdjust", "1"),
     ("CustomSounds", "0"),
     ("SilentEngageDisengage", "0"),
@@ -63,11 +66,11 @@ def manager_init():
     ("EndToEndToggle", "1"),
     ("EnableTorqueControl", "0"),
     ("LanelessMode", "2"),
-    ("LanePositionEnabled", "0"),
-    ("AutoAutoLanePosition", "0"),
-    ("LongRangeLeadsEnabled", "0"),
-    ("AutoLanePositionActive", "0"),
-    ("LanePosition", "0"),
+    ("LanePositionEnabled", "1"),
+    ("AutoAutoLanePosition", "1"),
+    ("LongRangeLeadsEnabled", "1"),
+    ("AutoLanePositionActive", "1"),
+    ("LanePosition", "1"),
     ("NudgelessLaneChange", "0"),
     ("Coasting", "0"),
     ("CoastingDL", "0"),
@@ -78,7 +81,7 @@ def manager_init():
     ("OnePedalModeEngageOnGas", "0"),
     ("OnePedalDLEngageOnGas", "0"),
     ("OnePedalBrakeMode", "0"),
-    ("OnePedalPauseBlinkerSteering", "1"),
+    ("OnePedalPauseBlinkerSteering", "0"),
     ("FollowLevel", "2"),
     ("DynamicFollow", "1"),
     ("DynamicFollowToggle", "0"),
@@ -96,16 +99,16 @@ def manager_init():
     ("LowOverheadMode", "0"),
     ("FPVolt", "0"),
     ("MeasureConfigNum", "0"),
-    ("MeasureSlot00", "31"), # percent grade 
-    ("MeasureSlot01", "9"), # acceleration 
-    ("MeasureSlot02", "48"), # hvb wattage and voltage
-    ("MeasureSlot03", "50"), # ev recent eff
-    ("MeasureSlot04", "6"), # engine RPM + coolant temp F
-    ("MeasureSlot05", "22"), #  brake power
-    ("MeasureSlot06", "19"), # regen power
-    ("MeasureSlot07", "24"), # drive power
-    ("MeasureSlot08", "56"),# ev drivetrain eff
-    ("MeasureSlot09", "52"),# device cpu percent and temp °C
+    ("MeasureSlot00", "61"), # CPU점유율과 온도 °C
+    ("MeasureSlot01", "1"), # 핸들:경로 비교각
+    ("MeasureSlot02", "5"), # 엔진RPM + 온도
+    ("MeasureSlot03", "7"), # 냉각수온도
+    ("MeasureSlot04", "74"), # GPS정확도,위성수
+    ("MeasureSlot05", "37"), # 차선폭
+    ("MeasureSlot06", "10"), # 횡가속도
+    ("MeasureSlot07", "31"), # 고도
+    ("MeasureSlot08", "32"), # 위도
+    ("MeasureSlot09", "43"), # 차간거리, 안전거리
   ]
   if not PC:
     default_params.append(("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')))
@@ -180,6 +183,13 @@ def manager_cleanup():
 
 
 def manager_thread():
+
+  Process(name="road_speed_limiter", target=launcher, args=("selfdrive.road_speed_limiter",)).start()
+
+  if EON:
+    system("am startservice com.neokii.optool/.MainService")
+    Process(name="autoshutdownd", target=launcher, args=("selfdrive.autoshutdownd", "autoshutdownd")).start()
+  cloudlog.bind(daemon="manager")
   cloudlog.info("manager start")
   cloudlog.info({"environ": os.environ})
 

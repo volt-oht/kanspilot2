@@ -356,7 +356,7 @@ def autohold_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool) -> 
     "AutoHolding for %s | Gas to resume" % stotime(sm['longitudinalPlan'].secondsStopped),
     "You can rest your foot now.",
     AlertStatus.normal, AlertSize.small,
-    Priority.LOWER, VisualAlert.none, AudibleAlert.none, 0., 0.4, .3)
+    Priority.LOWER, VisualAlert.none, AudibleAlert.chimeAutoHoldOn, 3., 0., 0.)
 
 
 def stopped_alert(CP: car.CarParams, sm: messaging.SubMaster, metric: bool) -> Alert:
@@ -1080,5 +1080,21 @@ EVENTS: Dict[int, Dict[str, Union[Alert, Callable[[Any, messaging.SubMaster, boo
       "",
       AlertStatus.normal, AlertSize.small,
       Priority.LOW, VisualAlert.none, AudibleAlert.none, 0., 3., 0.3),
+  },
+
+  EventName.slowingDownSpeed: {
+    ET.PERMANENT: Alert(
+      "Slowing down",
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.none, .1, 0., 0.),
+  },
+  
+  EventName.slowingDownSpeedSound: {
+    ET.PERMANENT: Alert(
+      "Slowing down",
+      "",
+      AlertStatus.normal, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.chimeSlowingDownSpeed, 3., 0., 0.),
   },
 }

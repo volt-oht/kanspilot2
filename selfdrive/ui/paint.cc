@@ -1,5 +1,10 @@
 #include "selfdrive/ui/paint.h"
 
+#include <time.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #include <algorithm>
 #include <cassert>
 #include <string>
@@ -280,24 +285,12 @@ static void draw_lead(UIState *s, float d_rel, float v_rel, const vertex_data &v
       nvgText(s->vg,lead_x-x_offset,lead_y-y_offset,val,NULL);
 
       // then length distance
-      if (s->is_metric){
-        snprintf(unit, sizeof(unit), "m"); 
-        if (s->scene.lead_d_rel < 10.){
-          snprintf(val, sizeof(val), "%.1f%s", s->scene.lead_d_rel, unit);
-        }
-        else{
-          snprintf(val, sizeof(val), "%.0f%s", s->scene.lead_d_rel, unit);
-        }
+      snprintf(unit, sizeof(unit), "m"); 
+      if (s->scene.lead_d_rel < 10.){
+        snprintf(val, sizeof(val), "%.1f%s", s->scene.lead_d_rel, unit);
       }
       else{
-        snprintf(unit, sizeof(unit), "ft"); 
-        float d_ft = s->scene.lead_d_rel * 3.281;
-        if (d_ft < 10.){
-          snprintf(val, sizeof(val), "%.1f%s", d_ft, unit);
-        }
-        else{
-          snprintf(val, sizeof(val), "%.0f%s", d_ft, unit);
-        }
+        snprintf(val, sizeof(val), "%.0f%s", s->scene.lead_d_rel, unit);
       }
       nvgText(s->vg,lead_x-x_offset,lead_y+y_offset,val,NULL);
 
@@ -305,34 +298,19 @@ static void draw_lead(UIState *s, float d_rel, float v_rel, const vertex_data &v
 
       nvgTextAlign(s->vg, NVG_ALIGN_LEFT | NVG_ALIGN_MIDDLE);
       // first abs speed
-      if (s->is_metric){
-        snprintf(unit, sizeof(unit), "kph"); 
-        float v = (s->scene.lead_v * 3.6);
-        if (v < 100.){
-          snprintf(val, sizeof(val), "%.1f", v);
-        }
-        else{
-          snprintf(val, sizeof(val), "%.0f", v);
-        }
+      snprintf(unit, sizeof(unit), "kph"); 
+      float v = (s->scene.lead_v * 3.6);
+      if (v < 100.){
+        snprintf(val, sizeof(val), "%.1f", v);
       }
       else{
-        snprintf(unit, sizeof(unit), "mph"); 
-        float v = (s->scene.lead_v * 2.2374144);
-        if (v < 100.){
-          snprintf(val, sizeof(val), "%.1f", v);
-        }
-        else{
-          snprintf(val, sizeof(val), "%.0f", v);
-        }
+        snprintf(val, sizeof(val), "%.0f", v);
       }
       nvgText(s->vg,lead_x+x_offset,lead_y-(y_offset*1.3),val,NULL);
 
       // then relative speed
-      if (s->is_metric) {
-          snprintf(val, sizeof(val), "%s%.1f", s->scene.lead_v_rel >= 0. ? "+" : "", (s->scene.lead_v_rel * 3.6));
-      } else {
-          snprintf(val, sizeof(val), "%s%.1f", s->scene.lead_v_rel >= 0. ? "+" : "", (s->scene.lead_v_rel * 2.2374144));
-      }
+      snprintf(val, sizeof(val), "%s%.1f", s->scene.lead_v_rel >= 0. ? "+" : "", (s->scene.lead_v_rel * 3.6));
+
       nvgText(s->vg,lead_x+x_offset,lead_y+(y_offset*1.4),val,NULL);
 
       nvgFontSize(s->vg, 70);
@@ -2636,6 +2614,92 @@ static void ui_draw_vision_speed(UIState *s) {
   s->scene.speed_rect = {s->fb_w / 2 - 50, 150, 150, 300};
 }
 
+static void ui_draw_speed_limit(UIState *s)
+{
+  const SubMaster &sm = *(s->sm);
+  const auto scc_smoother = sm["carControl"].getCarControl().getSccSmoother();
+  const auto road_limit_speed = sm["roadLimitSpeed"].getRoadLimitSpeed();
+
+  int activeNDA = scc_smoother.getRoadLimitSpeedActive();
+  int roadLimitSpeed = road_limit_speed.getRoadLimitSpeed();
+
+  int camLimitSpeed = scc_smoother.getRoadLimitSpeed();
+  int camLimitSpeedLeftDist = scc_smoother.getRoadLimitSpeedLeftDist();
+
+  int sectionLimitSpeed = road_limit_speed.getSectionLimitSpeed();
+  int sectionLeftDist = road_limit_speed.getSectionLeftDist();
+
+  int limit_speed = 0;
+  int left_dist = 0;
+
+  if(camLimitSpeed >= 0 && camLimitSpeedLeftDist > 0) {
+    limit_speed = camLimitSpeed;
+    left_dist = camLimitSpeedLeftDist;
+  }
+  else if(sectionLimitSpeed >= 0 && sectionLeftDist > 0) {
+    limit_speed = sectionLimitSpeed;
+    left_dist = sectionLeftDist;
+  }
+
+  if(activeNDA > 0)
+  {
+    int w = 120;
+    int h = 54;
+    int x = (s->fb_w + (bdr_s*2))/3 - w/2 - bdr_s*4;
+    int y = bdr_s - 20;
+
+    const char* img = activeNDA == 1 ? "img_nda" : "img_hda";
+    ui_draw_image(s, {x, y, w, h}, img, 1.f);
+  }
+
+  if(limit_speed > 10 && left_dist > 0)
+  {
+    int w = 180;
+    int h = 180;
+    int x = (s->viz_rect.x + bdr_s + 400);
+    int y = 70;
+    char str[32];
+
+    nvgBeginPath(s->vg);
+    nvgRoundedRect(s->vg, x, y, w, h, 185);
+    nvgStrokeColor(s->vg, nvgRGBA(255, 0, 0, 200));
+    nvgStrokeWidth(s->vg, 15);
+    nvgStroke(s->vg);
+
+    NVGcolor fillColor = nvgRGBA(0, 0, 0, 50);
+    nvgFillColor(s->vg, fillColor);
+    nvgFill(s->vg);
+
+    nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 250));
+
+    nvgFontSize(s->vg, 110);
+    nvgFontFace(s->vg, "sans-bold");
+    nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+
+    snprintf(str, sizeof(str), "%d", limit_speed);
+    nvgText(s->vg, x+w/2, y+h/2, str, NULL);
+
+    nvgBeginPath(s->vg);
+    nvgRect(s->vg, x+w/2-100, y+h-30, 190, 80);
+    NVGcolor squareColor = nvgRGBA(255, 0, 0, 200);
+    nvgFillColor(s->vg, squareColor);
+    nvgFill(s->vg);
+    nvgFillColor(s->vg, nvgRGBA(255, 255, 255, 250));
+
+    nvgFontSize(s->vg, 86);
+    nvgFontFace(s->vg, "sans-bold");
+    nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
+
+    if(left_dist >= 1000)
+      snprintf(str, sizeof(str), "%.1fkm", left_dist / 1000.f);
+    else if(left_dist > 0)
+      snprintf(str, sizeof(str), "%dm", left_dist);
+
+    nvgText(s->vg, x+w/2, y+h, str, NULL);
+  }
+}
+
+
 static void ui_draw_vision_event(UIState *s) {
   s->scene.wheel_touch_rect = {1,1,1,1};
   if (s->scene.engageable) {
@@ -3389,6 +3453,7 @@ static void ui_draw_vision_header(UIState *s) {
   ui_draw_vision_speed(s);
   ui_draw_vision_turnspeed(s);
   ui_draw_vision_event(s);
+  ui_draw_speed_limit(s);
 }
 
 static void ui_draw_vision(UIState *s) {
@@ -3555,7 +3620,9 @@ void ui_nvg_init(UIState *s) {
     {"brake_disk", "../assets/img_brake.png"},
     {"one_pedal_mode", "../assets/offroad/icon_car_pedal.png"},
     {"lane_pos_left", "../assets/offroad/icon_lane_pos_left.png"},
-    {"lane_pos_right", "../assets/offroad/icon_lane_pos_right.png"}
+    {"lane_pos_right", "../assets/offroad/icon_lane_pos_right.png"},
+    {"img_nda", "../assets/img_nda.png"},
+    {"img_hda", "../assets/img_hda.png"}
   };
   for (auto [name, file] : images) {
     s->images[name] = nvgCreateImage(s->vg, file, 1);
