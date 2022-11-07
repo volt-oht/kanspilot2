@@ -79,14 +79,14 @@ void Sidebar::updateState(const UIState &s) {
 
   auto ts = deviceState.getThermalStatus();
   if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
-    snprintf(val, sizeof(temp_str), "%.1f%s\nGOOD\nCPU", m_ambientTemp, "°C");
+    snprintf(val, sizeof(val), "%.1f%s\nGOOD\nCPU", m_ambientTemp, "°C");
     tempStatus = {val, good_color};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
-    snprintf(val, sizeof(temp_str), "%.1f%s\nOK\nCPU", m_ambientTemp, "°C");
+    snprintf(val, sizeof(val), "%.1f%s\nOK\nCPU", m_ambientTemp, "°C");
     tempStatus = {val, warning_color};
   }
   else {
-    snprintf(val, sizeof(temp_str), "%.1f%s\nHIGH_TEMP", m_ambientTemp, "°C");
+    snprintf(val, sizeof(val), "%.1f%s\nHIGH_TEMP", m_ambientTemp, "°C");
     tempStatus = {val, danger_color};
   }
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
