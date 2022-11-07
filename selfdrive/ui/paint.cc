@@ -1154,15 +1154,9 @@ static void ui_draw_measures(UIState *s){
             snprintf(name, sizeof(name), "ALTITUDE");
             if (scene.gpsAccuracyUblox != 0.00) {
               float tmp_val;
-              if (s->is_metric) {
-                tmp_val = scene.altitudeUblox;
-                snprintf(val, sizeof(val), "%.0f", scene.altitudeUblox);
-                snprintf(unit, sizeof(unit), "m");
-              } else {
-                tmp_val = scene.altitudeUblox * 3.2808399;
-                snprintf(val, sizeof(val), "%.0f", tmp_val);
-                snprintf(unit, sizeof(unit), "ft");
-              }
+              tmp_val = scene.altitudeUblox;
+              snprintf(val, sizeof(val), "%.0f", scene.altitudeUblox);
+              snprintf(unit, sizeof(unit), "m");
               if (log10(tmp_val) >= 4){
                 val_font_size -= 10;
               }
@@ -1588,38 +1582,19 @@ static void ui_draw_measures(UIState *s){
             {
               snprintf(name, sizeof(name), "REL DIST");
               if (scene.lead_status) {
-                if (s->is_metric) {
-                  g = 0;
-                  b = 0;
-                  p = 0.0333 * scene.lead_d_rel;
-                  g += int((0.5+p) * 255.);
-                  b += int(p * 255.);
-                  g = (g >= 0 ? (g <= 255 ? g : 255) : 0);
-                  b = (b >= 0 ? (b <= 255 ? b : 255) : 0);
-                  val_color = nvgRGBA(255, g, b, 200);
-                  snprintf(val, sizeof(val), "%.0f", scene.lead_d_rel);
-                }
-                else{
-                  g = 0;
-                  b = 0;
-                  p = 0.01 * scene.lead_d_rel * 3.281;
-                  g += int((0.5+p) * 255.);
-                  b += int(p * 255.);
-                  g = (g >= 0 ? (g <= 255 ? g : 255) : 0);
-                  b = (b >= 0 ? (b <= 255 ? b : 255) : 0);
-                  val_color = nvgRGBA(255, g, b, 200);
-                  float d_ft = scene.lead_d_rel * 3.281;
-                  snprintf(val, sizeof(val), "%.0f", d_ft);
-                }
+                g = 0;
+                b = 0;
+                p = 0.0333 * scene.lead_d_rel;
+                g += int((0.5+p) * 255.);
+                b += int(p * 255.);
+                g = (g >= 0 ? (g <= 255 ? g : 255) : 0);
+                b = (b >= 0 ? (b <= 255 ? b : 255) : 0);
+                val_color = nvgRGBA(255, g, b, 200);
+                snprintf(val, sizeof(val), "%.0f", scene.lead_d_rel);
               } else {
                 snprintf(val, sizeof(val), "-");
               }
-              if (s->is_metric) {
-                snprintf(unit, sizeof(unit), "m");
-              }
-              else{
-                snprintf(unit, sizeof(unit), "ft");
-              }
+              snprintf(unit, sizeof(unit), "m");
             }
             break;
         
@@ -1628,37 +1603,19 @@ static void ui_draw_measures(UIState *s){
               snprintf(name, sizeof(name), "REL:DES DIST");
               auto follow_d = scene.desiredFollowDistance * scene.car_state.getVEgo() + scene.stoppingDistance;
               if (scene.lead_status) {
-                if (s->is_metric) {
-                  g = 0;
-                  b = 0;
-                  p = 0.0333 * scene.lead_d_rel;
-                  g += int((0.5+p) * 255.);
-                  b += int(p * 255.);
-                  g = (g >= 0 ? (g <= 255 ? g : 255) : 0);
-                  b = (b >= 0 ? (b <= 255 ? b : 255) : 0);
-                  val_color = nvgRGBA(255, g, b, 200);
-                  snprintf(val, sizeof(val), "%d:%d", (int)scene.lead_d_rel, (int)follow_d);
-                }
-                else{
-                  g = 0;
-                  b = 0;
-                  p = 0.01 * scene.lead_d_rel * 3.281;
-                  g += int((0.5+p) * 255.);
-                  b += int(p * 255.);
-                  g = (g >= 0 ? (g <= 255 ? g : 255) : 0);
-                  b = (b >= 0 ? (b <= 255 ? b : 255) : 0);
-                  val_color = nvgRGBA(255, g, b, 200);
-                  snprintf(val, sizeof(val), "%d:%d", (int)(scene.lead_d_rel * 3.281), (int)(follow_d * 3.281));
-                }
+                g = 0;
+                b = 0;
+                p = 0.0333 * scene.lead_d_rel;
+                g += int((0.5+p) * 255.);
+                b += int(p * 255.);
+                g = (g >= 0 ? (g <= 255 ? g : 255) : 0);
+                b = (b >= 0 ? (b <= 255 ? b : 255) : 0);
+                val_color = nvgRGBA(255, g, b, 200);
+                snprintf(val, sizeof(val), "%d:%d", (int)scene.lead_d_rel, (int)follow_d);
               } else {
                 snprintf(val, sizeof(val), "-");
               }
-              if (s->is_metric) {
-                snprintf(unit, sizeof(unit), "m");
-              }
-              else{
-                snprintf(unit, sizeof(unit), "ft");
-              }
+              snprintf(unit, sizeof(unit), "m");
             }
             break;
             
@@ -1727,41 +1684,24 @@ static void ui_draw_measures(UIState *s){
               b = (b >= 0 ? (b <= 255 ? b : 255) : 0);
               val_color = nvgRGBA(255, g, b, 200);
               // lead car relative speed is always in meters
-              if (s->is_metric) {
-                snprintf(val, sizeof(val), "%.1f", (scene.lead_v_rel * 3.6));
-              } else {
-                snprintf(val, sizeof(val), "%.1f", (scene.lead_v_rel * 2.2374144));
-              }
+              snprintf(val, sizeof(val), "%.1f", (scene.lead_v_rel * 3.6));
             } else {
               snprintf(val, sizeof(val), "-");
             }
-            if (s->is_metric) {
-              snprintf(unit, sizeof(unit), "km/h");;
-            } else {
-              snprintf(unit, sizeof(unit), "mph");
-            }}
+            snprintf(unit, sizeof(unit), "km/h");;
+            }
             break;
           
           case UIMeasure::LEAD_VELOCITY_ABS: 
             {
             snprintf(name, sizeof(name), "LEAD SPD");
             if (scene.lead_status) {
-              if (s->is_metric) {
-                float v = (scene.lead_v * 3.6);
-                if (v < 100.){
-                  snprintf(val, sizeof(val), "%.1f", v);
-                }
-                else{
-                  snprintf(val, sizeof(val), "%.0f", v);
-                }
-              } else {
-                float v = (scene.lead_v * 2.2374144);
-                if (v < 100.){
-                  snprintf(val, sizeof(val), "%.1f", v);
-                }
-                else{
-                  snprintf(val, sizeof(val), "%.0f", v);
-                }
+              float v = (scene.lead_v * 3.6);
+              if (v < 100.){
+                snprintf(val, sizeof(val), "%.1f", v);
+              }
+              else{
+                snprintf(val, sizeof(val), "%.0f", v);
               }
             } else {
               snprintf(val, sizeof(val), "-");
@@ -2413,14 +2353,8 @@ static void ui_draw_measures(UIState *s){
           case UIMeasure::LANE_WIDTH: 
             {
               snprintf(name, sizeof(name), "LANE W");
-              if (s->is_metric){
-                snprintf(unit, sizeof(unit), "m");
-                snprintf(val, sizeof(val), "%f.1", scene.lateralPlan.laneWidth);
-              }
-              else{
-                snprintf(unit, sizeof(unit), "ft");
-                snprintf(val, sizeof(val), "%.1f", scene.lateralPlan.laneWidth * 3.281);
-              }
+              snprintf(unit, sizeof(unit), "m");
+              snprintf(val, sizeof(val), "%f.1", scene.lateralPlan.laneWidth);
             }
             break;
 
